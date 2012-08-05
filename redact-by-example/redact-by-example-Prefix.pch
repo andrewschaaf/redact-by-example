@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'redact-by-example' target in the 'redact-by-example' project
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+#endif
