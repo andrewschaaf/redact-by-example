@@ -1,0 +1,10 @@
+{
+  "name": "",
+  "version": "0.0.0",
+  "dependencies": {
+    "uiautomation-runner": "0.0.4",
+    "mkdirp": "~0.3.3",
+    "png-guts": ">=0.0.3",
+    "async": "~0.1.22"
+  }
+}
