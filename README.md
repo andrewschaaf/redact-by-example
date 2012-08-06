@@ -7,3 +7,18 @@ Suppose you want the same redactions that were applied to EXAMPLE to be applied 
 Note: R, G, B `\in` {0, ..., 255}
 
 Note: DEST is always written as a PNG
+
+<!--
+<table>
+  <tr>
+    <th>EXAMPLE</th>
+    <th>SRC</th>
+    <th>DEST</th>
+  </tr>
+  <tr>
+    <td><img width="100px" height="100px" src="https://raw.github.com/andrewschaaf/redact-by-example/master/tests/redacted.png" /></td>
+    <td><img width="100px" height="100px" src="https://raw.github.com/andrewschaaf/redact-by-example/master/tests/subject.png" /></td>
+    <td><img width="100px" height="100px" src="https://raw.github.com/andrewschaaf/redact-by-example/master/tests/result-expected.png" /></td>
+  </tr>
+</table>
+-->
