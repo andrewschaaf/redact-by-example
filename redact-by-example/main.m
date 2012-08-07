@@ -2,11 +2,6 @@
 #import <AppKit/AppKit.h>
 
 
-typedef struct _RGB {
-	unsigned char r, g, b;
-} RGB;
-
-
 void fatal_error(NSString *msg) {
     NSLog(@"%@", msg);
     exit(1);
@@ -16,12 +11,6 @@ NSBitmapImageRep* loadImageRep(const char *path) {
     NSString *pathString = [NSString stringWithCString:path encoding:NSUTF8StringEncoding];
     NSImage *img = [[NSImage alloc] initWithContentsOfFile:pathString];
     NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:[img TIFFRepresentation]];
-    if ([rep samplesPerPixel] != 3) {
-        fatal_error(@"only RGB supported so far");
-    }
-    if ([rep bitsPerPixel] != 24) {
-        fatal_error(@"only 24-bit pixels supported so far");
-    }
     return rep;
 }
 
@@ -33,30 +22,35 @@ int main(int argc, const char * argv[]) {
     NSBitmapImageRep *exampleRep = loadImageRep(argv[1]);
     NSBitmapImageRep *targetRep = loadImageRep(argv[2]);
     NSString *destPath = [NSString stringWithCString:argv[3] encoding:NSUTF8StringEncoding];
-    RGB redactionPixel;
-    redactionPixel.r = atoi(argv[4]);
-    redactionPixel.g = atoi(argv[5]);
-    redactionPixel.b = atoi(argv[6]);
+    unsigned char redactedPixel[3];
+    redactedPixel[0] = atoi(argv[4]);
+    redactedPixel[1] = atoi(argv[5]);
+    redactedPixel[2] = atoi(argv[6]);
     
     long w = (long)[exampleRep pixelsWide];
     long h = (long)[exampleRep pixelsHigh];
-    long i;
+    long i, j, redact;
     if ((w != [exampleRep pixelsWide]) || (h != [exampleRep pixelsHigh])) {
         fatal_error(@"Dimensions don't match.");
     }
     
-    RGB *examplePixels = (RGB *)[exampleRep bitmapData];
-    RGB *targetPixels = (RGB *)[targetRep bitmapData];
-    RGB pixel;
+    unsigned char *examplePixels = [exampleRep bitmapData];
+    unsigned char *targetPixels = [targetRep bitmapData];
+    int exampleBpp = [exampleRep bitsPerPixel] / 8;
+    int targetBpp = [targetRep bitsPerPixel] / 8;
     for (long y = 0; y < h; y++) {
         for (long x = 0; x < w; x++) {
             i = (y * w) + x;
-            pixel = examplePixels[i];
-            if (
-                    (pixel.r == redactionPixel.r) &&
-                    (pixel.g == redactionPixel.g) &&
-                    (pixel.b == redactionPixel.b)) {
-                targetPixels[i] = redactionPixel;
+            redact = 1;
+            for (j = 0; j < exampleBpp; j++) {
+              if (redactedPixel[j] != examplePixels[(i * exampleBpp) + j]) {
+                redact = 0;
+              }
+            }
+            if (redact) {
+              for (j = 0; j < targetBpp; j++) {
+                targetPixels[(i * targetBpp) + j] = redactedPixel[j];
+              }
             }
         }
     }
