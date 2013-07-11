@@ -14,13 +14,13 @@ NSBitmapImageRep* loadImageRep(const char *path) {
     return rep;
 }
 
-int bytesPerPixelWithoutAlphaChannel(long Bpp) {
-    if (Bpp == 2) {
+int bytesPerPixelWithoutAlphaChannel(long bytesPerPixel) {
+    if (bytesPerPixel == 2) {
         return 1;
-    } else if (Bpp == 4) {
+    } else if (bytesPerPixel == 4) {
         return 3;
     } else {
-        return (int)Bpp;
+        return (int)bytesPerPixel;
     }
 }
 
