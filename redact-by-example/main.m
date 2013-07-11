@@ -14,6 +14,15 @@ NSBitmapImageRep* loadImageRep(const char *path) {
     return rep;
 }
 
+int bytesPerPixelWithoutAlphaChannel(long bytesPerPixel) {
+    if (bytesPerPixel == 2) {
+        return 1;
+    } else if (bytesPerPixel == 4) {
+        return 3;
+    } else {
+        return (int)bytesPerPixel;
+    }
+}
 
 int main(int argc, const char * argv[]) {
     if (argc != (1 + 3 + 3)) {
@@ -26,37 +35,40 @@ int main(int argc, const char * argv[]) {
     redactedPixel[0] = atoi(argv[4]);
     redactedPixel[1] = atoi(argv[5]);
     redactedPixel[2] = atoi(argv[6]);
-    
+
     long w = (long)[exampleRep pixelsWide];
     long h = (long)[exampleRep pixelsHigh];
     long i, j, redact;
-    if ((w != [exampleRep pixelsWide]) || (h != [exampleRep pixelsHigh])) {
+    if ((w != [targetRep pixelsWide]) || (h != [targetRep pixelsHigh])) {
         fatal_error(@"Dimensions don't match.");
     }
-    
+
     unsigned char *examplePixels = [exampleRep bitmapData];
     unsigned char *targetPixels = [targetRep bitmapData];
     int exampleBpp = [exampleRep bitsPerPixel] / 8;
     int targetBpp = [targetRep bitsPerPixel] / 8;
+    int exampleBppWithoutAlpha = bytesPerPixelWithoutAlphaChannel(exampleBpp);
+    int targetBppWithoutAlpha = bytesPerPixelWithoutAlphaChannel(targetBpp);
+
     for (long y = 0; y < h; y++) {
         for (long x = 0; x < w; x++) {
             i = (y * w) + x;
             redact = 1;
-            for (j = 0; j < exampleBpp; j++) {
-              if (redactedPixel[j] != examplePixels[(i * exampleBpp) + j]) {
-                redact = 0;
-              }
+            for (j = 0; j < exampleBppWithoutAlpha; j++) {
+                if (redactedPixel[j] != examplePixels[(i * exampleBpp) + j]) {
+                    redact = 0;
+                }
             }
             if (redact) {
-              for (j = 0; j < targetBpp; j++) {
-                targetPixels[(i * targetBpp) + j] = redactedPixel[j];
-              }
+                for (j = 0; j < targetBppWithoutAlpha; j++) {
+                    targetPixels[(i * targetBpp) + j] = redactedPixel[j];
+                }
             }
         }
     }
-    
+
     NSData *png = [targetRep representationUsingType:NSPNGFileType properties:nil];
     [png writeToFile:destPath atomically:YES];
-    
+
     return 0;
 }
